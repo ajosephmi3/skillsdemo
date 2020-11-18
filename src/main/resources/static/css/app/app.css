@@ -1,0 +1,81 @@
+/******* App specific css classes use underscore to differentiate from library specific css ******/
+
+.popup_label {
+    padding-right: 5px;
+    font-weight: bold;
+}
+.popup_detail {
+	padding-left: 12px;
+	padding-bottom: 5px;
+}
+
+.page_title {
+	font-weight: bold;
+	font-size: 1.2em;
+}
+
+.row_total {
+	background-color: #20b2aa; 
+	color:black !important;
+	font-weight: bold
+}
+
+
+.timesheet_comments{
+  padding-top: 10px;
+}
+	
+.timesheet_comments *{
+  vertical-align: middle;
+}
+
+label {
+	color: blue;
+}
+
+label.comments {
+  width:150px;
+  display: inline-block;
+  text-align: right;
+}
+
+.highlight a{
+	background-color: cyan !important;
+}
+/************************** lib css overrides below this line *********************/
+
+.navbar {
+	padding: 0px;
+}
+
+.sidebar-header {
+	font-size: 1.1em;
+}
+
+main.content {
+	padding: 7px;
+}
+
+.sidebar {
+	min-width: 230px;
+	max-width: 230px;
+}
+
+.sidebar-item {
+	color: #3b7ddd !important;
+}
+
+a.nav-link:hover {
+	color: #3b7ddd  !important;
+}
+
+
+.modal-header {
+	background-color: #0077d3;
+}
+
+.modal-title {
+	color: white;
+}
+
+.k-calendar { font-size: 12px; }

@@ -1,0 +1,13 @@
+#person_project_list_grid .k-grid-content {
+	min-height:250px;
+	max-height: 250px;
+}
+
+#timesheet_grid .k-grid-content {
+	min-height:150px;
+	max-height: 200px;
+}
+
+#timesheet_grid .k-dirty{
+    display: none;      
+  }

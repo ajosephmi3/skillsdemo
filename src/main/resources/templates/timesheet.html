@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layouts/main :: layout(~{::div#main},~{::script})}">
+
+<div id="main">
+  <div class="container-fluid text-left">
+    <div class="row no-gutters">
+      <div class="col-4">
+        <label>Name:</label> [[${timesheet.fullName}]]
+      </div>
+      <div class="col">
+        <label>Timesheet Id:</label> [[${timesheet.id}]]
+      </div>
+    </div>
+    <div class="row no-gutters">
+      <div class="col-4">
+        <label>Period:</label> [[${timesheet.timesheetDateRange}]]
+      </div>
+      <div class="col">
+                <th:block th:if="${timesheet.submittedOn}">
+          <label>Submitted On:</label>  [[${timesheet.formattedSubmittedOn}]]
+         </th:block>
+      </div>
+    </div>
+    <div class="row no-gutters">
+      <div class="col-4">
+        <label>Status: </label> [[${timesheet.status}]]
+      </div>
+      <div class="col">
+      <th:block th:if="${timesheet.approvedOn}">
+          <label>Approved:</label>  [[${timesheet.formattedApprovedOn}]] &nbsp; [[${timesheet.approvedBy}]] 
+         </th:block>
+      </div>
+    </div>
+  </div>
+
+  <input id="action" th:value="Save" type="hidden">
+  
+  <div id="timesheet_grid"></div>
+  
+  <div class="timesheet_comments">
+    <label class="comments"> User Comments: </label>
+    <th:block th:if="${editable}">
+    <textarea id="userComments" rows="3" cols="50" th:field="${timesheet.userComments}"></textarea>
+    </th:block>
+    <th:block th:unless="${editable}">
+      [[${timesheet.userComments}]]
+    </th:block>
+  </div>
+  <div class="timesheet_comments">
+    <label class="comments">Approver Comments: </label>
+    <th:block th:if="${allowApproval}">
+    <textarea id="approverComments" rows="3" cols="50" th:field="${timesheet.approverComments}"></textarea>
+    </th:block>
+        <th:block th:unless="${allowApproval}">
+           [[${timesheet.approverComments}]]
+    </th:block>
+  </div>
+
+</div>
+
+<script>
+  var datesList = [(${datesList})];  
+  var userProjectsDropdownList = [(${userProjectsDropdownList})]; 
+  var timesheetId = [(${timesheet.id})]; 
+  var editable = [(${editable})];  
+  var allowApproval = [(${allowApproval})]; 
+  
+  var timesheet = new Timesheet('timesheet_grid', editable, allowApproval,
+		                        timesheetId, datesList, userProjectsDropdownList);
+  timesheet.displayGrid();
+  
+</script>

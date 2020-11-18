@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+  th:replace="~{layouts/main :: layout(~{::div#main},~{::script})}">
+
+<div id="main">
+  <div class="page_title">My Timesheets</div>
+  <div id="timesheet_list_grid" data-js-kendo-grid></div> 
+</div>
+
+<script>
+   var timesheetList = new TimesheetList("timesheet_list_grid", "/timesheet/api/mytimesheets");
+   timesheetList.displayGrid();
+</script>

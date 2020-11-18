@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	  th:replace="~{layouts/main :: layout(~{::div#main},~{::script})}">
+
+<div id="main">
+  <div class="modal fade" id="popup_modal" role="dialog" data-js-modal>
+    <div class="modal-dialog  modal-md">
+      <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title w-100 text-center">Projects assigned to user</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+        <div class="modal-body">
+        <div class="popup_detail">
+        <span class="popup_label">User:</span><span id="popup_detail_value"></span>
+        </div>
+            <div class="col-md-12">
+              <div id="person_project_list_grid" data-js-kendo-grid></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+    <div class="page_title">Users</div>
+    <div id="person_list_grid" data-js-kendo-grid></div>
+</div>
+
+<script>
+  var editable =[(${editable})]; 
+  var roleDropdownList = [(${roleDropdownList})];
+  var accountStatusDropdownList = [(${accountStatusDropdownList})];
+  var reportsToDropdownList = [(${reportsToDropdownList})];
+  var projectDropdownList = [(${projectDropdownList})]; 
+  var personList = new PersonList('person_list_grid', editable, roleDropdownList, accountStatusDropdownList, reportsToDropdownList, projectDropdownList);
+  personList.displayGrid();
+
+
+  function showPersonProjectsInModal(personId, personFullName){	
+	    // initialize the person_project_grid in the modal and show it
+		var personProjectList = new PersonProjectList('person_project_list_grid', editable, personId, projectDropdownList);
+        personProjectList.displayGrid();
+	    $('#popup_detail_value').html(personFullName);
+		$('#popup_modal').modal('show'); 
+	  }
+ 
+</script>

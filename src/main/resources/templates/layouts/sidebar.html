@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<nav id="sidebar" class="sidebar" th:fragment="sidebar">
+  <div class="sidebar-content">
+    <a class="sidebar-brand"> <span class="align-middle" style="color: #3b7ddd;"><i class="fa fa-cloud"></i>
+        SkillsDemo</span>
+    </a>
+    <ul class="sidebar-nav">
+      <li class="sidebar-header">
+         <span class="align-middle" style="color: #3b7ddd;"><i class="fa fa-calendar"></i>&nbsp;Timesheet</span>
+      </li>
+      <li class="sidebar-item" id="nav_period">
+          <a class="sidebar-link" href="/timesheet/period"> <i class="fa fa-clock-o"></i><span
+          class="align-middle">New Timesheet</span></a>
+      </li>
+      <li class="sidebar-item " id="nav_mytimesheetlist">
+          <a class="sidebar-link" href="/timesheet/mytimesheetlist"> <i class="fa fa-list"></i><span
+          class="align-middle">My Timesheets</span></a>
+      </li>
+      <th:block sec:authorize="hasRole('ROLE_MANAGER')">
+      <li class="sidebar-item" id="nav_employeetimesheetlist">
+          <a class="sidebar-link" href="/timesheet/employeetimesheetlist"> <i class="fa fa-user-clock"></i><span
+          class="align-middle">Employee Timesheets</span></a>
+      </li>
+      </th:block>
+      <th:block sec:authorize="hasRole('ROLE_ADMIN')">
+      <li class="sidebar-header">
+         <span class="align-middle" style="color: #3b7ddd;"><i class="fa fa-cog"></i>&nbsp;Administration</span>
+      </li>     
+      <li class="sidebar-item" id="nav_personlist">
+          <a class="sidebar-link" href="/person/personlist">
+          <i class="fa fa-users"></i><span class="align-middle">Users</span></a>
+      </li>
+      <li class="sidebar-item" id="nav_projectlist">
+          <a class="sidebar-link" href="/project/projectlist">
+          <i class="fa fa-tasks"></i><span class="align-middle">Projects</span></a>
+      </li>
+      </th:block>
+    </ul>
+  </div>
+</nav>

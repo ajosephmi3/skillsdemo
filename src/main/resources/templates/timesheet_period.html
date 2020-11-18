@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layouts/main :: layout(~{::div#main},~{::script})}">
+
+<div id="main">
+  <div class="page_title">New Timesheet</div>
+  <div style="padding-top: 10px">
+    <form id="periodForm" th:action="@{/timesheet/period}" method="post">
+      <label>Period:</label> <input id="periodDate" name="periodDate" required />
+      <a id="continue"class="btn btn-primary btn-sm" style="margin-left: 10px; color: white">Continue</a>
+      <!--  positioning the datepicker error message location -->
+      <div style="padding-left: 50px;">
+        <span class="k-invalid-msg" data-for="periodDate"></span>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+	var validator = $("#periodForm").kendoValidator({
+	  rules : {
+		  //implement your custom date validation
+		  dateValidation : function(e) {
+		  var currentDate = Date.parse($(e).val());
+		  //Check if Date parse is successful
+		  if (!currentDate) {
+		    return false;
+		  }
+		    return true;
+		  }
+		},
+		messages : {
+		  //Define your custom validation massages
+		  required : "Period is required",
+		  dateValidation : "Invalid date"
+		}
+	}).data("kendoValidator");
+	
+
+	$("#periodDate").kendoDatePicker({
+		format : "MM/dd/yyyy",
+	});
+
+	$("#continue").on('click',function() {
+	  if (validator.validate()) {
+		var timesheetPeriod = {periodDate : $("#periodDate").val()}
+		CustomAjax.post("/timesheet/api/period/next", JSON.stringify(timesheetPeriod));
+	  }
+    });
+	
+</script>

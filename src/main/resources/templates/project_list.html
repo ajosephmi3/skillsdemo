@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{layouts/main :: layout(~{::div#main},~{::script})}">
+
+<div id="main">
+  <div class="page_title">Projects</div>
+  <div id="project_list_grid" data-js-kendo-grid></div> 
+</div>
+
+<script>
+   var projectList = new ProjectList("project_list_grid", true);
+   projectList.displayGrid();
+</script>

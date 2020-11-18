@@ -1,0 +1,39 @@
+/* min and max height of grid */
+.k-grid-content {
+	min-height: 450px;
+	max-height: 450px;
+}
+
+/* grid header */
+.k-grid-header .k-header {
+	background-color: #6c9db2;
+	color: #f7f7f7 !important;
+}
+ .k-grid-header .k-header>.k-link, .k-header,
+	.k-treemap-title {
+	color: white !important;
+	text-transform: capitalize
+}
+
+/* column filter state */
+.k-grid-filter.k-state-active {
+	background-color: orange;
+}
+
+/* buttons for the grid */
+.k-button {
+	background-color: #0275d8;
+	color: white;
+}
+
+/* delete button on each row */
+.k-grid-delete {
+  background-color: lightgrey !important;
+  color: #000000;
+   min-width: 0 !important;
+}
+
+/* need this to show the 'required' message for dates and dropdowns. */
+.k-grid td {
+  overflow:visible;
+}

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<nav class="navbar navbar-expand navbar-light navbar-bg" th:fragment="topbar">
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="nav navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" style="color: #000000; font-weight: bold"><span sec:authentication="name"></span></a>
+        </li>
+        <li class="nav-item">
+           <a class="nav-link" href="/logout" data-turbolinks = "false">Logout</a>
+        </li>
+      </ul>
+    </div>
+</nav>
