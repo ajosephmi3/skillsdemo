@@ -1,83 +1,75 @@
 function Timesheet(gridName, editable, allowApproval, timesheetId, datesList, userProjectsDropdownList) {
-  grid = new GridCrud(gridName, editable);
-
+  let grid = new GridCrud(gridName, editable);
   grid.customPayloadCallback(customPayloadCallback);
   grid.editFunctionOverride(editFunctionOverride);
   grid.setDataboundCallback(databoundCallback);
 
   // dropdowns for the grid
-  var dropdownHelper = new GridDropdownHelper(gridName);
+  let dropdownHelper = new GridDropdownHelper(gridName);
   dropdownHelper.addPropertyDropdown('projectId', 'projectName', userProjectsDropdownList, 'Project is required');
 
   // override the default grid options
   grid.setGridOptions({ filterable: false, sortable: false, pageable: false});
-
-  // kendo model definition
-  let model = {};
-  model['id'] = "id";
-  model.fields = {
-    projectId: { editable: editable },
-    projectName: { editable: editable },
-  }
-  // hour fields for model.
-  for (let i = 0; i < datesList.length; i++) {
-    let dayFieldName = "hoursDay" + i;
-    model.fields[dayFieldName] = { editable: editable, validation: { functionvalidation: validateHours } };
-  }
-  model.fields["rowTotal"] = { editable: true }
-
-  // kendo column definition
-  let columns = [
-    {
-      field: "projectId", title: "project", width: 200, filterable: false,
-      editor: dropdownHelper.dropdownEditor,
-      template: "#: projectName #"
-    }];
-
-  // the hour columns
-  for (let i = 0; i < datesList.length; i++) {
-    let dayFieldName = "hoursDay" + i;
-    columns.push({ field: dayFieldName, title: datesList[i], footerTemplate: "<div style='font-weight: normal' id='" + dayFieldName + "columnTotal" + "'></div>" });
-  }
-
-  // the rowTotal column
-  columns.push({
-    field: "rowTotal", title: "Total",
-    template: calcRowTotal,
-    footerTemplate: "<div id='grandTotal'></div>",
-    headerAttributes: { style: "background-color: #20b2aa; color:black !important;font-weight: bold" }
-  })
-
-  let submitUrl = "/timesheet/api/timesheetId/" + timesheetId + "/submit";
-  let readUrl = "/timesheet/api/timesheetId/" + timesheetId
-    + "/timesheetrows";
-
-
+  
   let toolbar = [{ name: "create", text: "Add New Row" },
-  { name: "save", text: 'Save As Draft' },
-  { name: "Submit", iconClass: "k-icon k-i-check-circle" },
-  { name: 'cancel', text: 'Cancel Changes' }];
+	  { name: "save", text: 'Save As Draft' },
+	  { name: "Submit", iconClass: "k-icon k-i-check-circle" },
+	  { name: 'cancel', text: 'Cancel Changes' }];
 
-  if (!editable) {
-    if (allowApproval) {
-      toolbar = [{ name: "Approve", iconClass: "k-icon k-i-check-circle" },
-      { name: "Reject", iconClass: "k-icon k-i-undo" },
-      ];
-    }
-    else {
-      toolbar = [];
-    }
-  }
-
-  //console.log(toolbar)
+	  if (!editable) {
+	    if (allowApproval) {
+	      toolbar = [{ name: "Approve", iconClass: "k-icon k-i-check-circle" },
+	      { name: "Reject", iconClass: "k-icon k-i-undo" },
+	      ];
+	    }
+	    else {
+	      toolbar = [];
+	    }
+	  }
   grid.setToolbarOptions(toolbar);
 
+  // displayGrid method
   this.displayGrid = function () {
-    grid.initialize(model, columns, submitUrl, readUrl);
-  }
+    // kendo model definition
+    let model = {};
+    model['id'] = "id";
+    model.fields = {
+      projectId: { editable: editable },
+      projectName: { editable: editable },
+    }
+    // hour fields for model.
+    for (let i = 0; i < datesList.length; i++) {
+      let dayFieldName = "hoursDay" + i;
+      model.fields[dayFieldName] = { editable: editable, validation: { functionvalidation: validateHours } };
+    }
+    model.fields["rowTotal"] = { editable: true }
 
-  this.getGrid = function () {
-    return this.grid;
+    // kendo column definition
+    let columns = [
+      {
+        field: "projectId", title: "project", width: 200, filterable: false,
+        editor: dropdownHelper.dropdownEditor,
+        template: "#: projectName #"
+      }];
+
+    // the hour columns
+    for (let i = 0; i < datesList.length; i++) {
+      let dayFieldName = "hoursDay" + i;
+      columns.push({ field: dayFieldName, title: datesList[i], footerTemplate: "<div style='font-weight: normal' id='" + dayFieldName + "columnTotal" + "'></div>" });
+    }
+
+    // the rowTotal column
+    columns.push({
+      field: "rowTotal", title: "Total",
+      template: calcRowTotal,
+      footerTemplate: "<div id='grandTotal'></div>",
+      headerAttributes: { style: "background-color: #20b2aa; color:black !important;font-weight: bold" }
+    })
+
+    let submitUrl = "/timesheet/api/timesheetId/" + timesheetId + "/submit";
+    let readUrl = "/timesheet/api/timesheetId/" + timesheetId + "/timesheetrows";
+
+    grid.initialize(model, columns, submitUrl, readUrl);
   }
 
   /*
@@ -121,7 +113,7 @@ function Timesheet(gridName, editable, allowApproval, timesheetId, datesList, us
       }
 
       if (fieldName && fieldName == 'projectId' && !e.model.isNew()) {
-        dropdown = e.container.find('[data-role=dropdownlist]').data('kendoDropDownList');
+        let dropdown = e.container.find('[data-role=dropdownlist]').data('kendoDropDownList');
         if (dropdown) {
           dropdown.open();
         }

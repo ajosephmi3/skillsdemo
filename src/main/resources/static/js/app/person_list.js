@@ -2,22 +2,21 @@ function PersonList(gridName, editable,
                     roleDropdownList, accountStatusDropdownList,
                     reportsToDropdownList, projectDropdownList) {
 
-  var self = this;
-  
+  let self = this;
   this.autocompleteSelectedId = null; // used for reportstoId autocomplete filter
   
-  var grid = new GridCrud(gridName, editable);
+  let grid = new GridCrud(gridName, editable);
   grid.beforeReadCallback(beforeReadCallback);
   grid.editFunctionOverride(editFunctionOverride);
 
-  var dropdownHelper = new GridDropdownHelper(gridName);
+  let dropdownHelper = new GridDropdownHelper(gridName);
   dropdownHelper.addPropertyDropdown('role', 'roleText', roleDropdownList, "Role is required");
   dropdownHelper.addPropertyDropdown('accountStatus', 'accountStatusText', accountStatusDropdownList);
   dropdownHelper.addPropertyDropdown('reportsToId', 'reportsToText', reportsToDropdownList);
-
-  this.displayGrid = function () {
+  
+  this.displayGrid = function () {	
     // kendo model definition
-    var model = {};
+    let model = {};
     model['id'] = "id";
     model.fields = {
       username: { editable: editable, validation: { required: { message: 'Please enter value' } } },
@@ -39,7 +38,7 @@ function PersonList(gridName, editable,
     }
 
     //kendo column definition
-    var columns = [
+    let columns = [
       { field: "username", headerTemplate: 'Username <span class="k-icon k-i-kpi"></span>', width: 170, locked: true },
       { field: "firstName", headerTemplate: 'First Name <span class="k-icon k-i-kpi"></span>', width: 175, locked: true },
       { field: "lastName", headerTemplate: 'Last Name <span class="k-icon k-i-kpi"></span>', width: 175, locked: true },
@@ -57,13 +56,7 @@ function PersonList(gridName, editable,
         field: "reportsToId", title: "Reports To", width: 200, sortable: false,
         editor: dropdownHelper.dropdownEditor,
         template: "#: reportsToFullName #",
-        filterable: {
-          ui: autoCompleteForReportsTo,
-          extra: false,
-          operators: {
-            string: { equals: "Autocomplete" },
-          }
-        },
+        filterable: {ui: autoCompleteForReportsTo},
       },
       { field: "phoneNum", title: "Phone", width: 125, filterable: false, sortable: false },
       { field: "email", title: "Email", width: 225, filterable: false, sortable: false },
@@ -95,10 +88,10 @@ function PersonList(gridName, editable,
       locked: true
     });
     
-    var submitUrl = "/person/api/submit";
-    var readUrl = "/person/api/persons";
+    let submitUrl = "/person/api/submit";
+    let readUrl = "/person/api/persons";
 
-    var serverPagination = true;
+    let serverPagination = true;
     grid.initialize(model, columns, submitUrl, readUrl, serverPagination);
   }
 
@@ -135,7 +128,6 @@ function PersonList(gridName, editable,
 
   // massages the query parameters the kendo filters generate for the call to get the backend.
   function beforeReadCallback(data) {
-	console.log(self)
     let dataClone = data;
     if (data.filter) {
       dataClone = JSON.parse(JSON.stringify(data))
