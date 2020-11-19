@@ -50,17 +50,15 @@ public class PersonService {
     dropdownList.add(0, new ValueAndText("", ""));
     return dropdownList;
   }
-  
+
   public List<ValueAndText> findManageAutocomplete(String autocompleteValue) {
-	    List<Person> list = personDao.findManagerAutocomplete(autocompleteValue);
-	    List<ValueAndText> responseList = new ArrayList<>();
-	    for (Person p : list) {
-	      responseList.add(new ValueAndText(p.getId().toString(), p.getFullName()));
-	    }
-	    return responseList;
-	  }
-  
-  
+    List<Person> list = personDao.findManagerAutocomplete(autocompleteValue);
+    List<ValueAndText> responseList = new ArrayList<>();
+    for (Person p : list) {
+      responseList.add(new ValueAndText(p.getId().toString(), p.getFullName()));
+    }
+    return responseList;
+  }
 
   @Transactional
   public void processPersonsSubmit(GridSubmitData<Person> gridSubmitData) {

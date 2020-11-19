@@ -76,7 +76,7 @@ public class TimesheetDao extends BaseDao {
     return timesheet;
   }
 
-  // fetches the timesheet and its TimesheetLines. Does NOT fetch the timesheet entries
+  // fetches the timesheet and its TimesheetLines. Does NOT fetch the time entries
   private Timesheet fetchTimesheetAndRelatedLines(Integer timesheetId) {
     String sql =
         String.join(

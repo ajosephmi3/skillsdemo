@@ -108,17 +108,19 @@ public class PersonDao extends BaseDao {
     RowMapper<Person> mapper = BeanPropertyRowMapper.newInstance(Person.class);
     return jdbcTemplate.query(sql, mapper);
   }
-  
-  public List<Person> findManagerAutocomplete(String value){
-	    String sql =  String.join(" ",
-	    		                 "select id, first_name, last_name, username from person",
-	    		                 "where role = 'ROLE_MANAGER'",
-	    		                 "and concat(first_name , ' ' ,last_name) ilike ?",
-	    		                 "order by first_name, last_name");
-	    RowMapper<Person> mapper = BeanPropertyRowMapper.newInstance(Person.class);
-	    return jdbcTemplate.query(sql, mapper, "%" + value + "%");
+
+  public List<Person> findManagerAutocomplete(String value) {
+    String sql =
+        String.join(
+            " ",
+            "select id, first_name, last_name, username from person",
+            "where role = 'ROLE_MANAGER'",
+            "and concat(first_name , ' ' ,last_name) ilike ?",
+            "order by first_name, last_name");
+    RowMapper<Person> mapper = BeanPropertyRowMapper.newInstance(Person.class);
+    return jdbcTemplate.query(sql, mapper, "%" + value + "%");
   }
-  
+
   public Person findByUsername(String username) {
     String sql = "select * from person where username = ?";
     RowMapper<Person> mapper = BeanPropertyRowMapper.newInstance(Person.class);
