@@ -45,52 +45,52 @@ function GridDropdownHelper(gridName) {
         dataSource: ddArray,
       });
   }
-  
-  this.filterDropdown = function(element, dropdownArray){
-		// finds the closest form so we can start manipulating things.
-		var form = element.closest("form");
-		// removes the operators (ie contains etc)
-		form.find("select").remove();
-	  
-		element.kendoDropDownList({
-		  valuePrimitive: true,
-		  dataTextField: "text",
-		  dataValueField: "value",
-		  dataSource: dropdownArray
-		 });
-	  }
-  
-  this.filterAutocomplete = function(element, autocompleteUrl, caller) {
-		// finds the closest form so we can start manipulating things.
-		var form = element.closest("form");
-		// changes the help text. 
-		form.find(".k-filter-help-text:first").text("Autocomplete:");
-		// removes the operators (ie contains etc)
-		form.find("select").remove();
-		
-	    element.kendoAutoComplete({
-	      minLength: 1,
-	      change: function (e) {
-	        var selected = e.sender.listView.selectedDataItems();
-	        if (selected.length > 0) {
-	          caller.autocompleteSelectedId = selected[0].value;
-	        }
-	        else {
-	          caller.autocompleteSelectedId = null;
-	        }
-	      },
-	      dataSource: new kendo.data.DataSource({
-	        serverFiltering: true,
-	        transport: {
-	          read: {
-	            url: autocompleteUrl,
-	            dataType: "json"
-	          },
-	        }
-	      }),
-	      dataTextField: "text",
-	    });
-	    
-	  }
-   
+
+  this.filterDropdown = function (element, dropdownArray) {
+    // finds the closest form so we can start manipulating things.
+    var form = element.closest("form");
+    // removes the operators (ie contains etc)
+    form.find("select").remove();
+
+    element.kendoDropDownList({
+      valuePrimitive: true,
+      dataTextField: "text",
+      dataValueField: "value",
+      dataSource: dropdownArray
+    });
+  }
+
+  this.filterAutocomplete = function (element, autocompleteUrl, caller) {
+    // finds the closest form so we can start manipulating things.
+    var form = element.closest("form");
+    // changes the help text. 
+    form.find(".k-filter-help-text:first").text("Autocomplete:");
+    // removes the operators (ie contains etc)
+    form.find("select").remove();
+
+    element.kendoAutoComplete({
+      minLength: 1,
+      change: function (e) {
+        var selected = e.sender.listView.selectedDataItems();
+        if (selected.length > 0) {
+          caller.autocompleteSelectedId = selected[0].value;
+        }
+        else {
+          caller.autocompleteSelectedId = null;
+        }
+      },
+      dataSource: new kendo.data.DataSource({
+        serverFiltering: true,
+        transport: {
+          read: {
+            url: autocompleteUrl,
+            dataType: "json"
+          },
+        }
+      }),
+      dataTextField: "text",
+    });
+
+  }
+
 }
