@@ -28,8 +28,10 @@ document.addEventListener("turbolinks:request-start", function (event) {
   xhr.setRequestHeader("Application-Turbolinks-Request", 'true');
 });
 
-// sets the active link on the sidebar. Note all sidebar links are expected to have 
-// an id starting with 'nav_' and follow the naming convention
+// 1)sets the active link on the sidebar. Note all sidebar links are expected to have 
+//   an id starting with 'nav_' and follow the naming convention
+// 2) manages the display(show/hide) of sidebar also
+// Note: login.html page removes application related cookies.
 document.addEventListener('turbolinks:load', function() {
    // for location /timesheet/mytimesheets will return 'mytimesheets'
    var path = window.location.href.split("/").pop();  
@@ -42,7 +44,7 @@ document.addEventListener('turbolinks:load', function() {
 	 $("#nav_" + path).addClass("highlight");
    }
 
-   // manage the sidebar display 
+   // manage the sidebar display. Note in login.html we 
    var sidebarCollapsed = Cookies.get('app_sidebar_collapsed');
    if(sidebarCollapsed && $('#sidebar').is(":visible")){
 	   $("#sidebar").hide();
