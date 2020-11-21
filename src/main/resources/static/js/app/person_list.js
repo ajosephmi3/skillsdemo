@@ -39,11 +39,11 @@ function PersonList(gridName, editable,
 
     //kendo column definition
     let columns = [
-      { field: "username", headerTemplate: 'Username <span class="k-icon k-i-kpi"></span>', width: 170, locked: true },
-      { field: "firstName", headerTemplate: 'First Name <span class="k-icon k-i-kpi"></span>', width: 175, locked: true },
-      { field: "lastName", headerTemplate: 'Last Name <span class="k-icon k-i-kpi"></span>', width: 175, locked: true },
+      { field: "username", headerTemplate: titleWithSortIcon('Username'), width: 170, locked: true },
+      { field: "firstName", headerTemplate: titleWithSortIcon('First Name'), width: 175, locked: true },
+      { field: "lastName", headerTemplate: titleWithSortIcon('Last Name'), width: 175, locked: true },
       {
-        field: "role", headerTemplate: 'Role <span class="k-icon k-i-kpi"></span>', width: 125,
+        field: "role", headerTemplate: titleWithSortIcon('Role'), width: 125,
         editor: dropdownHelper.dropdownEditor,
         template: "#: roleText #",
         filterable: { ui: roleFilter},
@@ -142,6 +142,10 @@ function PersonList(gridName, editable,
       }
     }
     return dataClone;
+  }
+  
+  function titleWithSortIcon(title){
+	return title + ' <span class="k-icon k-i-kpi"></span>';
   }
 
 }

@@ -38,9 +38,29 @@ document.addEventListener('turbolinks:load', function() {
      Cookies.set('app_nav_link',path)
    }
    else {
-	   path = Cookies.get('app_nav_link');
-	   $("#nav_" + path).addClass("highlight");
+	 path = Cookies.get('app_nav_link');
+	 $("#nav_" + path).addClass("highlight");
    }
+
+   // manage the sidebar display 
+   var sidebarCollapsed = Cookies.get('app_sidebar_collapsed');
+   if(sidebarCollapsed && $('#sidebar').is(":visible")){
+	   $("#sidebar").hide();
+   }
+  
+});
+
+// sidebar toggle
+$(document).on('click', '.sidebar-toggle', function(){
+	var sidebarCollapsed = Cookies.get('app_sidebar_collapsed');
+	if(sidebarCollapsed){
+		Cookies.remove('app_sidebar_collapsed');
+		$("#sidebar").show();
+	}
+	else {
+		$("#sidebar").hide();
+		 Cookies.set('app_sidebar_collapsed',"true")
+	}
 });
 
 /*
@@ -61,3 +81,6 @@ $(document).ajaxComplete(function (event, xhr, settings) {
     toastr.success(xhr.getResponseHeader('redirect_message'));
   }
 });
+
+
+

@@ -13,6 +13,7 @@
 	href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
 	integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
 	crossorigin="anonymous">
+  <script th:src="@{/js/js.cookie-2.2.1.min.js}"></script>
 
 <title>Signin for Skilldemo</title>
 
@@ -149,7 +150,11 @@ Application is running on AWS EC2 connecting to an AWS RDS Aurora PostgreSQL dat
    //document.getElementById("environment").style.display = "none";
    document.getElementById("chrome-required").style.display = "block";
  }
-
+ 
+ document.addEventListener("DOMContentLoaded", function(event) { 
+	Cookies.remove('app_sidebar_collapsed');
+	Cookies.remove('app_nav_link')
+ });
 </script>
 
 </body>
