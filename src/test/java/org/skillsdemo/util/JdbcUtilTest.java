@@ -90,6 +90,7 @@ public class JdbcUtilTest {
     assertEquals("two lastname", timesheets.get(1).getPerson().getLastName());
   }
   
+  @SuppressWarnings("all")
   @Test
   public void multipleModelMapperTest() throws Exception {
 	    ResultSet rs =
@@ -117,7 +118,8 @@ public class JdbcUtilTest {
     assertEquals(2, modelList.get("project_").size());
 
   }
-    
+  
+  @SuppressWarnings("all")
   @Test
   public void toOneMergeTest() throws Exception {
 	    ResultSet rs =
@@ -153,6 +155,7 @@ public class JdbcUtilTest {
 
   }
   
+  @SuppressWarnings("all")
   @Test
   public void toManyMergeTest() throws Exception {
 	    ResultSet rs =
