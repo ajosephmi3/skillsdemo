@@ -15,6 +15,8 @@ public class TimesheetLine {
   private String projectName;
 
   private List<TimeEntry> timeEntries = new ArrayList<>();
+  
+  private Project project;
 
   public TimesheetLine(Integer id, Integer timesheetId, Integer projectId) {
     this.id = id;

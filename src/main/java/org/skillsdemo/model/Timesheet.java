@@ -66,6 +66,8 @@ public class Timesheet {
   
   // calculated in sql
   private Double totalHours;
+  
+  private Person person;
 
   public Timesheet(Integer id, LocalDate startDate, LocalDate endDate, Integer personId) {
     this.id = id;
