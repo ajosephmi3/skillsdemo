@@ -20,9 +20,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.RegExUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.CaseUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -448,7 +445,7 @@ public class JdbcUtil {
   public <T, U> void toOne(
       List<T> mainObjList, String relationshipPropertyName, Class<U> relationshipClazz) {
     String tableName = convertCamelToSnakeCase(relationshipClazz.getSimpleName());
-    if (CollectionUtils.isNotEmpty(mainObjList)) {
+    if (isNotEmpty(mainObjList)) {
       String joinColumnName = tableName + "_id";
       String joinPropertyName = convertSnakeToCamelCase(joinColumnName);
 
@@ -492,7 +489,7 @@ public class JdbcUtil {
       String relationshipPropertyName,
       SelectMapper<U> relatedObjMapper) {
     List<T> list = toOneMapper(rs, mainObjMapper, relationshipPropertyName, relatedObjMapper);
-    return CollectionUtils.isNotEmpty(list) ? list.get(0) : null;
+    return isNotEmpty(list) ? list.get(0) : null;
   }
 
   @SuppressWarnings("all")
@@ -534,7 +531,7 @@ public class JdbcUtil {
       List<U> relatedObjList,
       String relationshipPropertyName,
       String joinPropertyName) {
-    if (CollectionUtils.isNotEmpty(mainObjList) && CollectionUtils.isNotEmpty(relatedObjList)) {
+    if (isNotEmpty(mainObjList) && isNotEmpty(relatedObjList)) {
       Map<Integer, U> idToObjectMap =
           relatedObjList
               .stream()
@@ -573,7 +570,7 @@ public class JdbcUtil {
       Class<U> manySideClazz,
       String orderByClause) {
     String tableName = convertCamelToSnakeCase(manySideClazz.getSimpleName());
-    if (CollectionUtils.isNotEmpty(mainObjList)) {
+    if (isNotEmpty(mainObjList)) {
       Set<Integer> allIds = new LinkedHashSet<>();
       for (T mainObj : mainObjList) {
         Integer idVal = (Integer) getSimpleProperty(mainObj, "id");
@@ -595,7 +592,7 @@ public class JdbcUtil {
       Collection<List<Integer>> chunkedColumnIds = chunkList(uniqueIds, IN_CLAUSE_CHUNK_SIZE);
       for (List<Integer> columnIds : chunkedColumnIds) {
         String sql = "select * from " + tableName + " where " + joinColumnName + " in (:columnIds)";
-        if (StringUtils.isNotEmpty(orderByClause)) {
+        if (isNotEmpty(orderByClause)) {
           sql += " " + orderByClause;
         } else {
           sql += " order by id";
@@ -605,7 +602,7 @@ public class JdbcUtil {
         manySideList.addAll(npJdbcTemplate.query(sql, params, mapper));
       }
 
-      if (CollectionUtils.isNotEmpty(manySideList)) {
+      if (isNotEmpty(manySideList)) {
         String joinPropertyName = convertSnakeToCamelCase(joinColumnName);
 
         // map: key - joinPropertyName, value - List of manyside for the join property
@@ -677,7 +674,7 @@ public class JdbcUtil {
       String joinPropertyName) {
     try {
       Map<Integer, T> resultMap = new LinkedHashMap<>();
-      if (CollectionUtils.isNotEmpty(manySideList)) {
+      if (isNotEmpty(manySideList)) {
         Map<Integer, List<U>> mapColumnIdToManySide =
             manySideList
                 .stream()
@@ -857,7 +854,7 @@ public class JdbcUtil {
       List<String> propertyNames = getPropertyNames(obj);
       for (String propName : propertyNames) {
         String columnName = convertCamelToSnakeCase(propName);
-        if (StringUtils.isNotBlank(prefix)) {
+        if (isNotEmpty(prefix)) {
           columnName = prefix + columnName;
         }
         if (resultSetColumnNames.contains(columnName)) {
@@ -1019,8 +1016,11 @@ public class JdbcUtil {
   private String convertCamelToSnakeCase(String str) {
     String snakeCase = camelToSnakeCache.get(str);
     if (snakeCase == null) {
-      snakeCase = RegExUtils.replaceAll(str, TO_SNAKE_CASE_PATTERN, "$1_$2").toLowerCase();
-      camelToSnakeCache.put(str, snakeCase);
+      if (str != null) {
+        snakeCase = TO_SNAKE_CASE_PATTERN.matcher(str).replaceAll("$1_$2").toLowerCase();
+       // snakeCase = RegExUtils.replaceAll(str, TO_SNAKE_CASE_PATTERN, "$1_$2").toLowerCase();
+        camelToSnakeCache.put(str, snakeCase);
+      }
     }
     return snakeCase;
   }
@@ -1044,7 +1044,7 @@ public class JdbcUtil {
   }
 
   private List<Object> uniqueByIdList(List<Object> list) {
-    if (CollectionUtils.isNotEmpty(list)) {
+    if (isNotEmpty(list)) {
       Map<Integer, Object> idToObjectMap = new LinkedHashMap<>();
       for (Object obj : list) {
         Integer id = (Integer) getSimpleProperty(obj, "id");
@@ -1057,4 +1057,22 @@ public class JdbcUtil {
       return list;
     }
   }
+  
+  private boolean isEmpty(String str) {
+	  return str == null || str.length() == 0;
+  }
+  
+  private boolean isNotEmpty(String str) {
+	  return !isEmpty(str);
+  }
+  
+  @SuppressWarnings("all")
+  private boolean isEmpty(Collection coll) {
+      return (coll == null || coll.isEmpty());
+  }
+  @SuppressWarnings("all")
+  private boolean isNotEmpty(Collection coll) {
+      return !isEmpty(coll);
+  }
+
 }
