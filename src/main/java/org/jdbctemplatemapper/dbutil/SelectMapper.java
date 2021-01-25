@@ -1,4 +1,4 @@
-package org.skillsdemo.common;
+package org.jdbctemplatemapper.dbutil;
 
 import lombok.Data;
 

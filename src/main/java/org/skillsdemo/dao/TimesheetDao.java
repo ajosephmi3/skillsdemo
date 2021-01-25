@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.skillsdemo.common.SelectMapper;
+import org.jdbctemplatemapper.dbutil.SelectMapper;
 import org.skillsdemo.model.TimeEntry;
 import org.skillsdemo.model.Timesheet;
 import org.skillsdemo.model.TimesheetLine;
@@ -90,10 +90,11 @@ public class TimesheetDao extends BaseDao {
             "left join project proj on tl.project_id = proj.id",
             "where t.id = ?",
             "order by t.id, tl.id");
-
+    
     List<Timesheet> timesheetList = jdbcTemplate.query(
           sql,
           new Object[] {timesheetId},
+          new int[] {java.sql.Types.INTEGER},
           rs -> { return toManyMapper(rs, 
         		                      new SelectMapper<Timesheet>(Timesheet.class), 
         		                      "timesheetLines",
