@@ -27,6 +27,5 @@
 
 ### application files to ignore ###
 grid_crud.js
-JdbcUtil.java
 kendo.all.min.js
 grid_crud.min.js
