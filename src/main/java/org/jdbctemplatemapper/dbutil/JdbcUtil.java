@@ -250,7 +250,7 @@ public class JdbcUtil {
       bw.setPropertyValue(updatedByPropertyName, auditOperatorResolver.getAuditOperator());
     }
 
-    Map<String, Object> attributes = convertToSqlProperties(pojo);
+    Map<String, Object> attributes = convertObjectToMap(pojo);
     // if object has property version throw OptimisticLockingException
     // update fails. version gets incremented
     if (versionPropertyName != null && bw.isReadableProperty(versionPropertyName)) {
@@ -344,7 +344,7 @@ public class JdbcUtil {
       bw.setPropertyValue(updatedByPropertyName, auditOperatorResolver.getAuditOperator());
     }
 
-    Map<String, Object> attributes = convertToSqlProperties(pojo);
+    Map<String, Object> attributes = convertObjectToMap(pojo);
     // if object has property version throw OptimisticLockingException
     // update fails. The version gets incremented
     if (versionPropertyName != null && bw.isReadableProperty(versionPropertyName)) {
@@ -806,7 +806,7 @@ public class JdbcUtil {
     for (PropertyDescriptor pd : propertyDescriptors) {
       String columnName = convertCamelToSnakeCase(pd.getName());
       // skips non db columns and ignore fields like 'id' etc for SET
-      if (!ignoreAttrs.contains(columnName) && dbColumnNameList.contains(columnName)) {
+      if (!ignoreAttrs.contains(pd.getName()) && dbColumnNameList.contains(columnName)) {
         updateColumnNameList.add(columnName);
       }
     }
@@ -883,14 +883,12 @@ public class JdbcUtil {
   /**
    * Converts an object to a map with key as database column names. ie the camel case property names
    * are converted to snake case. For example 'userLastName' will get converted to 'user_last_name'
-   * Also converts values of type LocalDate, LocalDateTime to their corresponding sql types
    *
    * @param pojo - The object to convert
-   * @return A map with keys that are in snake case to match database column names and values
-   *     converted to sql types
+   * @return A map with keys that are in snake case to match database column names
    */
   private Map<String, Object> convertToDbColumnAttributes(Object pojo) {
-    Map<String, Object> camelCaseAttrs = convertToSqlProperties(pojo);
+    Map<String, Object> camelCaseAttrs = convertObjectToMap(pojo);
     Map<String, Object> snakeCaseAttrs = new HashMap<>();
     for (String key : camelCaseAttrs.keySet()) {
       // lastName will get converted to last_name
@@ -901,14 +899,13 @@ public class JdbcUtil {
   }
 
   /**
-   * Converts an object to a Map and the property values are type converted to work with sql
+   * Converts an object to a Map
    *
    * @param pojo - The object to be converted.
-   * @return Map with key: property name, value: type conversion date fields to sql types
+   * @return Map with key: property name, value: object value
    */
   
-  //TODO Do we need this
-  private Map<String, Object> convertToSqlProperties(Object pojo) {
+  private Map<String, Object> convertObjectToMap(Object pojo) {
     Map<String, Object> camelCaseAttrs = new HashMap<>();
     BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(pojo);
     List<String> propertyNames = getPropertyNames(pojo);
@@ -983,29 +980,12 @@ public class JdbcUtil {
     }
     return list;
   }
-
  
   private Object getSimpleProperty(Object obj, String propertyName) {
       BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(obj);
       return bw.getPropertyValue(propertyName);
   }
-  /*
-  private void setSimpleProperty(Object obj, String propertyName, Object val) {
-    try {
-      PropertyUtils.setProperty(obj, propertyName, val);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
 
-  private Class<?> getPropertyType(Object obj, String propertyName) {
-    try {
-      return PropertyUtils.getPropertyType(obj, propertyName);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-  }
-*/
   /**
    * Converts camel case to snake case. Ex: userLastName gets converted to user_last_name
    *
