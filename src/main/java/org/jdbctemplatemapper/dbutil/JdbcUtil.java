@@ -4,7 +4,6 @@ import java.beans.PropertyDescriptor;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,7 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.commons.beanutils.PropertyUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.PropertyAccessorFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -152,29 +152,30 @@ public class JdbcUtil {
   public void insert(Object pojo) {
     String tableName = convertCamelToSnakeCase(pojo.getClass().getSimpleName());
     LocalDateTime now = LocalDateTime.now();
-
-    if (createdOnPropertyName != null && PropertyUtils.isReadable(pojo, createdOnPropertyName)) {
-      setSimpleProperty(pojo, createdOnPropertyName, now);
+    BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(pojo);
+    
+    if (createdOnPropertyName != null && bw.isReadableProperty(createdOnPropertyName)) {
+      bw.setPropertyValue(createdOnPropertyName, now);
     }
     if (createdByPropertyName != null
         && auditOperatorResolver != null
-        && PropertyUtils.isReadable(pojo, createdByPropertyName)) {
-      setSimpleProperty(pojo, createdByPropertyName, auditOperatorResolver.getAuditOperator());
+        && bw.isReadableProperty(createdByPropertyName)) {
+      bw.setPropertyValue(createdByPropertyName, auditOperatorResolver.getAuditOperator());
     }
-    if (updatedOnPropertyName != null && PropertyUtils.isReadable(pojo, updatedOnPropertyName)) {
-      setSimpleProperty(pojo, updatedOnPropertyName, now);
+    if (updatedOnPropertyName != null && bw.isReadableProperty(updatedOnPropertyName)) {
+      bw.setPropertyValue(updatedOnPropertyName, now);
     }
     if (updatedByPropertyName != null
         && auditOperatorResolver != null
-        && PropertyUtils.isReadable(pojo, updatedByPropertyName)) {
-      setSimpleProperty(pojo, updatedByPropertyName, auditOperatorResolver.getAuditOperator());
+        && bw.isReadableProperty(updatedByPropertyName)) {
+      bw.setPropertyValue(updatedByPropertyName, auditOperatorResolver.getAuditOperator());
     }
-    if (versionPropertyName != null && PropertyUtils.isReadable(pojo, versionPropertyName)) {
-      setSimpleProperty(pojo, versionPropertyName, 1);
+    if (versionPropertyName != null && bw.isReadableProperty(versionPropertyName)) {
+      bw.setPropertyValue(versionPropertyName, 1);
     }
 
     Map<String, Object> attributes = convertToDbColumnAttributes(pojo);
-    Object idValue = getSimpleProperty(pojo, "id");
+    Object idValue = bw.getPropertyValue("id");
 
     SimpleJdbcInsert jdbcInsert = simpleJdbcInsertCache.get(tableName);
     if (jdbcInsert == null) {
@@ -209,12 +210,12 @@ public class JdbcUtil {
       // object whose id in database is auto increment
       Number idNumber = jdbcInsert.executeAndReturnKey(attributes);
       // set id on pojo
-      Class<?> clazz = getPropertyType(pojo, "id");
+      Class<?> clazz = bw.getPropertyType("id");
       if ("Integer".equals(clazz.getSimpleName())) {
-        setSimpleProperty(pojo, "id", idNumber.intValue());
+        bw.setPropertyValue("id", idNumber.intValue());
       } else {
         // id is of type long
-        setSimpleProperty(pojo, "id", idNumber.longValue());
+        bw.setPropertyValue("id", idNumber.longValue());
       }
     } else {
       // object with id that is NOT auto increment in database
@@ -238,21 +239,22 @@ public class JdbcUtil {
     }
 
     LocalDateTime now = LocalDateTime.now();
+    BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(pojo);
 
-    if (updatedOnPropertyName != null && PropertyUtils.isReadable(pojo, updatedOnPropertyName)) {
-      setSimpleProperty(pojo, updatedOnPropertyName, now);
+    if (updatedOnPropertyName != null && bw.isReadableProperty(updatedOnPropertyName)) {
+      bw.setPropertyValue(updatedOnPropertyName, now);
     }
     if (updatedByPropertyName != null
         && auditOperatorResolver != null
-        && PropertyUtils.isReadable(pojo, updatedByPropertyName)) {
-      setSimpleProperty(pojo, updatedByPropertyName, auditOperatorResolver.getAuditOperator());
+        && bw.isReadableProperty(updatedByPropertyName)) {
+      bw.setPropertyValue(updatedByPropertyName, auditOperatorResolver.getAuditOperator());
     }
 
     Map<String, Object> attributes = convertToSqlProperties(pojo);
     // if object has property version throw OptimisticLockingException
     // update fails. version gets incremented
-    if (versionPropertyName != null && PropertyUtils.isReadable(pojo, versionPropertyName)) {
-      Integer versionVal = (Integer) getSimpleProperty(pojo, versionPropertyName);
+    if (versionPropertyName != null && bw.isReadableProperty(versionPropertyName)) {
+      Integer versionVal = (Integer) bw.getPropertyValue(versionPropertyName);
       if (versionVal == null) {
         throw new RuntimeException(
             versionPropertyName
@@ -289,6 +291,7 @@ public class JdbcUtil {
    */
   public Integer update(Object pojo, String... propertyNames) {
     String tableName = convertCamelToSnakeCase(pojo.getClass().getSimpleName());
+    BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(pojo);
     // cachekey ex: className-propertyName1-propertyName2
     String cacheKey = tableName + "-" + String.join("-", propertyNames);
     String updateSql = updateSqlCache.get(cacheKey);
@@ -314,12 +317,12 @@ public class JdbcUtil {
         sqlBuilder.append(convertSnakeToCamelCase(columnName));
       }
       // the set assignment for the incremented version
-      if (versionPropertyName != null && PropertyUtils.isReadable(pojo, versionPropertyName)) {
+      if (versionPropertyName != null && bw.isReadableProperty(versionPropertyName)) {
         sqlBuilder.append(", ").append(versionPropertyName).append(" = :incrementedVersion");
       }
       // the where clause
       sqlBuilder.append(" where id = :id");
-      if (versionPropertyName != null && PropertyUtils.isReadable(pojo, versionPropertyName)) {
+      if (versionPropertyName != null && bw.isReadableProperty(versionPropertyName)) {
         sqlBuilder
             .append(" and ")
             .append(versionPropertyName)
@@ -332,20 +335,20 @@ public class JdbcUtil {
     }
 
     LocalDateTime now = LocalDateTime.now();
-    if (updatedOnPropertyName != null && PropertyUtils.isReadable(pojo, updatedOnPropertyName)) {
-      setSimpleProperty(pojo, updatedOnPropertyName, now);
+    if (updatedOnPropertyName != null && bw.isReadableProperty(updatedOnPropertyName)) {
+      bw.setPropertyValue(updatedOnPropertyName, now);
     }
     if (updatedByPropertyName != null
         && auditOperatorResolver != null
-        && PropertyUtils.isReadable(pojo, updatedByPropertyName)) {
-      setSimpleProperty(pojo, updatedByPropertyName, auditOperatorResolver.getAuditOperator());
+        && bw.isReadableProperty(updatedByPropertyName)) {
+      bw.setPropertyValue(updatedByPropertyName, auditOperatorResolver.getAuditOperator());
     }
 
     Map<String, Object> attributes = convertToSqlProperties(pojo);
     // if object has property version throw OptimisticLockingException
     // update fails. The version gets incremented
-    if (versionPropertyName != null && PropertyUtils.isReadable(pojo, versionPropertyName)) {
-      Integer versionVal = (Integer) getSimpleProperty(pojo, versionPropertyName);
+    if (versionPropertyName != null && bw.isReadableProperty(versionPropertyName)) {
+      Integer versionVal = (Integer) bw.getPropertyValue(versionPropertyName);
       if (versionVal == null) {
         throw new RuntimeException(
             versionPropertyName
@@ -380,8 +383,9 @@ public class JdbcUtil {
    */
   public Integer delete(Object pojo) {
     String tableName = convertCamelToSnakeCase(pojo.getClass().getSimpleName());
+    BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(pojo);
     String sql = "delete from " + tableName + " where id = ?";
-    Object id = getSimpleProperty(pojo, "id");
+    Object id = bw.getPropertyValue("id");
     return jdbcTemplate.update(sql, id);
   }
 
@@ -450,9 +454,10 @@ public class JdbcUtil {
 
       List<Integer> allColumnIds = new ArrayList<>();
       for (T mainObj : mainObjList) {
-        Integer joinPropertyValue = (Integer) getSimpleProperty(mainObj, joinPropertyName);
+        BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(mainObj);
+        Integer joinPropertyValue = (Integer) bw.getPropertyValue(joinPropertyName);
         if (joinPropertyValue != null && joinPropertyValue > 0) {
-          allColumnIds.add((Integer) getSimpleProperty(mainObj, joinPropertyName));
+          allColumnIds.add((Integer) bw.getPropertyValue(joinPropertyName));
         }
       }
       List<U> list = new ArrayList<>();
@@ -472,10 +477,10 @@ public class JdbcUtil {
               .collect(Collectors.toMap(e -> (Integer) getSimpleProperty(e, "id"), obj -> obj));
 
       for (T mainObj : mainObjList) {
-        Integer joinPropertyValue = (Integer) getSimpleProperty(mainObj, joinPropertyName);
+          BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(mainObj);
+        Integer joinPropertyValue = (Integer) bw.getPropertyValue(joinPropertyName);
         if (joinPropertyValue != null && joinPropertyValue > 0) {
-          setSimpleProperty(
-              mainObj, relationshipPropertyName, idToObjectMap.get(joinPropertyValue));
+          bw.setPropertyValue(relationshipPropertyName, idToObjectMap.get(joinPropertyValue));
         }
       }
     }
@@ -515,7 +520,8 @@ public class JdbcUtil {
                   rs,
                   relatedObjMapper.getSqlColumnPrefix(),
                   resultSetColumnNames);
-          setSimpleProperty(mainObj, relationshipPropertyName, relatedObj);
+          BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(mainObj);
+          bw.setPropertyValue(relationshipPropertyName, relatedObj);
         }
         list.add(mainObj);
       }
@@ -539,8 +545,9 @@ public class JdbcUtil {
       for (T mainObj : mainObjList) {
         Integer joinPropertyValue = (Integer) getSimpleProperty(mainObj, joinPropertyName);
         if (joinPropertyValue != null && joinPropertyValue > 0) {
-          setSimpleProperty(
-              mainObj, relationshipPropertyName, idToObjectMap.get(joinPropertyValue));
+            BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(mainObj);
+          bw.setPropertyValue(
+              relationshipPropertyName, idToObjectMap.get(joinPropertyValue));
         }
       }
     }
@@ -572,7 +579,8 @@ public class JdbcUtil {
     if (Util.isNotEmpty(mainObjList)) {
       Set<Integer> allIds = new LinkedHashSet<>();
       for (T mainObj : mainObjList) {
-        Integer idVal = (Integer) getSimpleProperty(mainObj, "id");
+          BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(mainObj);
+        Integer idVal = (Integer) bw.getPropertyValue("id");
         if (idVal != null && idVal > 0) {
           allIds.add((idVal));
         } else {
@@ -613,9 +621,10 @@ public class JdbcUtil {
 
         // assign the manyside list to the mainobj
         for (T mainObj : mainObjList) {
-          Integer idValue = (Integer) getSimpleProperty(mainObj, "id");
+          BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(mainObj);
+          Integer idValue = (Integer) bw.getPropertyValue("id");
           List<U> relatedList = mapColumnIdToManySide.get(idValue);
-          setSimpleProperty(mainObj, collectionPropertyName, relatedList);
+          bw.setPropertyValue(collectionPropertyName, relatedList);
         }
       }
     }
@@ -650,10 +659,11 @@ public class JdbcUtil {
                   rs,
                   relatedObjMapper.getSqlColumnPrefix(),
                   resultSetColumnNames);
-          List list = (List) getSimpleProperty(mainObj, collectionPropertyName);
+          BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(mainObj);
+          List list = (List) bw.getPropertyValue(collectionPropertyName);
           if (list == null) {
             list = new ArrayList<>();
-            setSimpleProperty(mainObj, collectionPropertyName, list);
+            bw.setPropertyValue(collectionPropertyName, list);
           }
           list.add(relatedObj);
         }
@@ -682,9 +692,10 @@ public class JdbcUtil {
 
         // assign the manyside list to the mainobj
         for (T mainObj : mainObjList) {
-          Integer idValue = (Integer) getSimpleProperty(mainObj, "id");
+          BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(mainObj);	
+          Integer idValue = (Integer) bw.getPropertyValue("id");
           List<U> relatedList = mapColumnIdToManySide.get(idValue);
-          setSimpleProperty(mainObj, collectionPropertyName, relatedList);
+          bw.setPropertyValue(collectionPropertyName, relatedList);
         }
       }
     } catch (Exception e) {
@@ -790,7 +801,8 @@ public class JdbcUtil {
     }
 
     List<String> updateColumnNameList = new ArrayList<>();
-    PropertyDescriptor[] propertyDescriptors = PropertyUtils.getPropertyDescriptors(pojo);
+    BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(pojo);
+    PropertyDescriptor[] propertyDescriptors = bw.getPropertyDescriptors();
     for (PropertyDescriptor pd : propertyDescriptors) {
       String columnName = convertCamelToSnakeCase(pd.getName());
       // skips non db columns and ignore fields like 'id' etc for SET
@@ -850,6 +862,7 @@ public class JdbcUtil {
       Class<T> clazz, ResultSet rs, String prefix, List<String> resultSetColumnNames) {
     try {
       Object obj = clazz.newInstance();
+      BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(obj);
       List<String> propertyNames = getPropertyNames(obj);
       for (String propName : propertyNames) {
         String columnName = convertCamelToSnakeCase(propName);
@@ -858,14 +871,7 @@ public class JdbcUtil {
         }
         if (resultSetColumnNames.contains(columnName)) {
           Object columnVal = rs.getObject(columnName);
-
-          if (columnVal instanceof java.sql.Timestamp) {
-            setSimpleProperty(obj, propName, ((java.sql.Timestamp) (columnVal)).toLocalDateTime());
-          } else if (columnVal instanceof java.sql.Date) {
-            setSimpleProperty(obj, propName, ((java.sql.Date) columnVal).toLocalDate());
-          } else {
-            setSimpleProperty(obj, propName, columnVal);
-          }
+          bw.setPropertyValue(propName, columnVal);
         }
       }
       return clazz.cast(obj);
@@ -900,20 +906,15 @@ public class JdbcUtil {
    * @param pojo - The object to be converted.
    * @return Map with key: property name, value: type conversion date fields to sql types
    */
+  
+  //TODO Do we need this
   private Map<String, Object> convertToSqlProperties(Object pojo) {
     Map<String, Object> camelCaseAttrs = new HashMap<>();
+    BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(pojo);
     List<String> propertyNames = getPropertyNames(pojo);
     for (String propName : propertyNames) {
-      // for LocalDateTime and LocalDate fields convert to their corresponding sql
-      // types
-      Object propValue = getSimpleProperty(pojo, propName);
-      if (propValue instanceof LocalDateTime) {
-        camelCaseAttrs.put(propName, java.sql.Timestamp.valueOf((LocalDateTime) propValue));
-      } else if (propValue instanceof LocalDate) {
-        camelCaseAttrs.put(propName, java.sql.Date.valueOf((LocalDate) propValue));
-      } else {
-        camelCaseAttrs.put(propName, propValue);
-      }
+      Object propValue = bw.getPropertyValue(propName);
+      camelCaseAttrs.put(propName, propValue);
     }
     return camelCaseAttrs;
   }
@@ -966,8 +967,9 @@ public class JdbcUtil {
   private List<String> getPropertyNames(Object pojo) {
     List<String> list = objectPropertyNamesCache.get(pojo.getClass().getSimpleName());
     if (list == null) {
+        BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(pojo);	
       list = new ArrayList<>();
-      PropertyDescriptor[] propertyDescriptors = PropertyUtils.getPropertyDescriptors(pojo);
+      PropertyDescriptor[] propertyDescriptors = bw.getPropertyDescriptors();
       for (PropertyDescriptor pd : propertyDescriptors) {
         String propName = pd.getName();
         // log.debug("Property name:{}" + propName);
@@ -982,14 +984,12 @@ public class JdbcUtil {
     return list;
   }
 
+ 
   private Object getSimpleProperty(Object obj, String propertyName) {
-    try {
-      return PropertyUtils.getSimpleProperty(obj, propertyName);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+      BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(obj);
+      return bw.getPropertyValue(propertyName);
   }
-
+  /*
   private void setSimpleProperty(Object obj, String propertyName, Object val) {
     try {
       PropertyUtils.setProperty(obj, propertyName, val);
@@ -1005,7 +1005,7 @@ public class JdbcUtil {
       throw new RuntimeException(e);
     }
   }
-
+*/
   /**
    * Converts camel case to snake case. Ex: userLastName gets converted to user_last_name
    *
@@ -1046,7 +1046,8 @@ public class JdbcUtil {
     if (Util.isNotEmpty(list)) {
       Map<Integer, Object> idToObjectMap = new LinkedHashMap<>();
       for (Object obj : list) {
-        Integer id = (Integer) getSimpleProperty(obj, "id");
+          BeanWrapper bw = PropertyAccessorFactory.forBeanPropertyAccess(obj);  
+        Integer id = (Integer) bw.getPropertyValue("id");
         if (!idToObjectMap.containsKey(id)) {
           idToObjectMap.put(id, obj);
         }
@@ -1057,6 +1058,4 @@ public class JdbcUtil {
     }
   }
   
-
-
 }
