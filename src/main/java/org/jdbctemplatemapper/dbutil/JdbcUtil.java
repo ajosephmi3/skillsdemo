@@ -32,8 +32,8 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
  * 1) Simple CRUD one liners using spring's JDBC template. 2) Methods to map relationships (toOne,
  * toMany etc) 3) Uses springsecurity's Principal to populate createdBy, updateBy .. fields.
  *
- * <p>TODO 1)Boolean/BigDecimal conversion, 2)make record audit property names configurable. 3) Need
- * a userResolver to populate created/updated user info
+ * <p>TODO
+ * 1) fix id so it can be integer/long. Maybe it can be any time.
  *
  * @author ajoseph
  */
